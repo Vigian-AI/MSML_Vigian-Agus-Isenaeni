@@ -125,14 +125,15 @@ def main(data_path, epochs=EPOCHS):
         mlflow.log_metrics({"test_loss": loss, "test_accuracy": acc})
         print(f"Test accuracy: {acc:.4f}")
 
-        # Simpan model sebagai artefak
+        # Simpan tokenizer sebagai artefak
         Path("model_output").mkdir(exist_ok=True)
-        model.save("model_output/model.keras")
         tok_path = "model_output/tokenizer.json"
         with open(tok_path, "w") as f:
             json.dump(tok.to_json(), f)
-        mlflow.log_artifact("model_output/model.keras")
         mlflow.log_artifact(tok_path)
+
+        # Log model via mlflow.keras.log_model agar bisa di-build Docker
+        mlflow.keras.log_model(model, artifact_path="model_output")
 
         print(f"Run ID: {run.info.run_id}")
 
