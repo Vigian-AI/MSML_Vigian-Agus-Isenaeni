@@ -1,0 +1,69 @@
+name: CI - Train Sentiment Model
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'Workflow-CI/MLProject/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: 'Jumlah epoch training'
+        required: false
+        default: '5'
+
+jobs:
+  train:
+    name: Train & Log Model (MLflow Project)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # --------------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # 2. Setup Python
+      # --------------------------------------------------------
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      # --------------------------------------------------------
+      # 3. Install dependencies
+      # --------------------------------------------------------
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install mlflow==2.19.0 tensorflow==2.16.1 keras-tuner==1.4.7 \
+                      scikit-learn==1.5.2 pandas==2.2.3 numpy==1.26.4 \
+                      matplotlib==3.9.4 seaborn==0.13.2 PySastrawi==1.2.1
+
+      # --------------------------------------------------------
+      # 4. Jalankan MLflow Project (training)
+      # --------------------------------------------------------
+      - name: Run MLflow Project
+        run: |
+          cd Workflow-CI/MLProject
+          mlflow run . \
+            --env-manager=local \
+            -P data_path=dataset_sentimen_preprocessing.csv \
+            -P epochs=${{ github.event.inputs.epochs || '5' }}
+
+      # --------------------------------------------------------
+      # 5. Upload artefak model ke GitHub Actions (Skilled)
+      # --------------------------------------------------------
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentiment-model-artifacts
+          path: Workflow-CI/MLProject/mlruns/
+          retention-days: 30

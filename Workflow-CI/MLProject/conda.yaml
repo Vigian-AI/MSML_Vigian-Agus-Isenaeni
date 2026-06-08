@@ -1,0 +1,17 @@
+name: sentiment-gojek-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12.7
+  - pip
+  - pip:
+    - tensorflow==2.16.1
+    - mlflow==2.19.0
+    - keras-tuner==1.4.7
+    - scikit-learn==1.5.2
+    - pandas==2.2.3
+    - numpy==1.26.4
+    - matplotlib==3.9.4
+    - seaborn==0.13.2
+    - PySastrawi==1.2.1

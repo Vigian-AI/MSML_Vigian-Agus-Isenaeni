@@ -1,0 +1,17 @@
+name: sentiment-gojek
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      data_path:
+        type: str
+        default: "dataset_sentimen_preprocessing.csv"
+      epochs:
+        type: int
+        default: 5
+    command: >
+      python modelling.py
+        --data {data_path}
+        --epochs {epochs}
